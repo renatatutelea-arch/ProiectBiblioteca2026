@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Biblioteca</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+        background-color: #f0f0f0;
+      }
+      h1 {
+        color: #333;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+      }
+      th {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px;
+      }
+      td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+      }
+      tr :hover {
+        background-color: #f5f5f5;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Biblioteca</h1>
+    <table id="tabelCarti">
+      <thead>
+        <tr>
+          <th>ISBN</th>
+          <th>Titlu</th>
+          <th>Autor</th>
+          <th>Editie</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="listaCarti"></tbody>
+    </table>
+    <script>
+      fetch("/api/carti")
+        .then((response) => response.json()) //Când primește răspunsul, îl transformă din text în date pe care JavaScript le înțelege (JSON = o listă de obiecte)
+        .then((carti) => {
+          const lista = document.getElementById("listaCarti");
+          carti.forEach((carte) => {
+            lista.innerHTML += `
+                        <tr>
+                            <td>${carte.isbn}</td>
+                            <td>${carte.titlu}</td>
+                            <td>${carte.autor}</td>
+                            <td>${carte.editie}</td>
+                            <td>${carte.status}</td>
+                        </tr>
+                    `;
+          });
+        });
+    </script>
+  </body>
+</html>

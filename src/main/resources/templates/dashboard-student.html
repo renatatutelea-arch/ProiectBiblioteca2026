@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Student</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4ff;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #1565c0;
+            text-align: center;
+        }
+        .sectiune {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 { color: #1565c0; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #1e88e5;
+            color: white;
+            padding: 10px;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #bbdefb;
+            text-align: center;
+        }
+        tr:hover { background-color: #e3f2fd; }
+        button {
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #1565c0; }
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+        .logout {
+            float: right;
+            background-color: #888;
+        }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            color: white;
+            font-size: 12px;
+        }
+        .pending { background-color: #fb8c00; }
+        .aprobat { background-color: #43a047; }
+        .respins { background-color: #e53935; }
+        .returnat { background-color: #888; }
+    </style>
+</head>
+<body>
+    <h1> Dashboard Student <button class="logout" onclick="window.location.href='/login'">Logout</button></h1>
+
+    <!-- Carti disponibile -->
+    <div class="sectiune">
+        <h2> Cărți disponibile</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ISBN</th>
+                    <th>Titlu</th>
+                    <th>Autor</th>
+                    <th>Ediție</th>
+                    <th>Acțiune</th>
+                </tr>
+            </thead>
+            <tbody id="listaCarti"></tbody>
+        </table>
+    </div>
+
+    <!-- Imprumuturile mele -->
+    <div class="sectiune">
+        <h2> Împrumuturile mele</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ISBN Carte</th>
+                    <th>Data Împrumut</th>
+                    <th>Termen Returnare</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="listaImprumuturi"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // ID-ul utilizatorului logat (salvat la login)
+        const idUtilizator = localStorage.getItem('idUtilizator');
+
+        // Incarca cartile
+        fetch('/api/carti')
+            .then(r => r.json())
+            .then(carti => {
+                const lista = document.getElementById('listaCarti');
+                carti.forEach(carte => {
+                    const disponibil = carte.status === 'disponibil';
+                    lista.innerHTML += `
+                        <tr>
+                            <td>${carte.isbn}</td>
+                            <td>${carte.titlu}</td>
+                            <td>${carte.autor}</td>
+                            <td>${carte.editie}</td>
+                            <td>
+                                <button onclick="cereImprumut('${carte.isbn}')" 
+                                    ${!disponibil ? 'disabled' : ''}>
+                                    ${disponibil ? 'Împrumută' : 'Indisponibil'}
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+
+        // Incarca imprumuturile studentului
+        function incarcaImprumuturi() {
+            fetch('/api/imprumuturi')
+                .then(r => r.json())
+                .then(toate => {
+                    const ale_mele = toate.filter(i => i.idUtilizator == idUtilizator);
+                    const lista = document.getElementById('listaImprumuturi');
+                    lista.innerHTML = '';
+                    if (ale_mele.length === 0) {
+                        lista.innerHTML = '<tr><td colspan="4">Nu ai împrumuturi.</td></tr>';
+                    }
+                    ale_mele.forEach(i => {
+                        lista.innerHTML += `
+                            <tr>
+                                <td>${i.isbnCarte}</td>
+                                <td>${i.dataImprumut}</td>
+                                <td>${i.dataReturnareEstimata}</td>
+                                <td><span class="badge ${i.status}">${i.status}</span></td>
+                            </tr>
+                        `;
+                    });
+                });
+        }
+
+        // Cere imprumut
+        function cereImprumut(isbn) {
+            fetch('/api/imprumuturi/cere', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isbnCarte: isbn, idUtilizator: idUtilizator })
+            })
+            .then(r => r.json())
+            .then(() => {
+                alert('Cerere trimisă! Așteaptă aprobarea bibliotecarului.');
+                incarcaImprumuturi();
+            });
+        }
+
+        incarcaImprumuturi();
+    </script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Bibliotecar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f0f3;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { color: #c2185b; text-align: center; }
+        .sectiune {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 { color: #c2185b; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background-color: #e91e63; color: white; padding: 10px; }
+        td { padding: 10px; border-bottom: 1px solid #f48fb1; text-align: center; }
+        tr:hover { background-color: #fce4ec; }
+        button {
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 2px;
+        }
+        .btn-aproba { background-color: #43a047; }
+        .btn-aproba:hover { background-color: #2e7d32; }
+        .btn-respinge { background-color: #e53935; }
+        .btn-respinge:hover { background-color: #b71c1c; }
+        .btn-returnat { background-color: #1e88e5; }
+        .btn-returnat:hover { background-color: #1565c0; }
+        .logout { float: right; background-color: #888; }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            color: white;
+            font-size: 12px;
+        }
+        .pending { background-color: #fb8c00; }
+        .aprobat { background-color: #43a047; }
+        .respins { background-color: #e53935; }
+        .returnat { background-color: #888; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Bibliotecar <button class="logout" onclick="window.location.href='/login'">Logout</button></h1>
+
+    <!-- Sectiunea carti -->
+    <div class="sectiune">
+        <h2> Cărți</h2>
+        <h2>➕ Adaugă carte nouă</h2>
+<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+    <input id="newIsbn" placeholder="ISBN" style="padding:8px; border-radius:8px; border:1px solid #f48fb1;">
+    <input id="newTitlu" placeholder="Titlu" style="padding:8px; border-radius:8px; border:1px solid #f48fb1;">
+    <input id="newAutor" placeholder="Autor" style="padding:8px; border-radius:8px; border:1px solid #f48fb1;">
+    <input id="newEditie" placeholder="Ediție" style="padding:8px; border-radius:8px; border:1px solid #f48fb1;">
+    <button class="btn-aproba" onclick="adaugaCarte()">Adaugă</button>
+</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ISBN</th>
+                    <th>Titlu</th>
+                    <th>Autor</th>
+                    <th>Ediție</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="listaCarti"></tbody>
+        </table>
+    </div>
+
+    <!-- Sectiunea imprumuturi -->
+    <div class="sectiune">
+        <h2> Cereri împrumuturi</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>ISBN Carte</th>
+                    <th>ID Utilizator</th>
+                    <th>Data Împrumut</th>
+                    <th>Termen Returnare</th>
+                    <th>Status</th>
+                    <th>Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody id="listaImprumuturi"></tbody>
+        </table>
+    </div>
+
+    <!-- Sectiunea utilizatori neaprobati -->
+    <div class="sectiune">
+        <h2> Utilizatori care așteaptă aprobare</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nume</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Acțiune</th>
+                </tr>
+            </thead>
+            <tbody id="listaUtilizatori"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function adaugaCarte() {
+    const carte = {
+        isbn: document.getElementById('newIsbn').value,
+        titlu: document.getElementById('newTitlu').value,
+        autor: document.getElementById('newAutor').value,
+        editie: document.getElementById('newEditie').value,
+        status: 'disponibil'
+    };
+    fetch('/api/carti', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(carte)
+    })
+    .then(() => { alert('Carte adăugată!'); location.reload(); });
+}
+        // Incarca cartile
+        fetch('/api/carti')
+            .then(r => r.json())
+            .then(carti => {
+                const lista = document.getElementById('listaCarti');
+                carti.forEach(carte => {
+                    lista.innerHTML += `
+                        <tr>
+                            <td>${carte.isbn}</td>
+                            <td>${carte.titlu}</td>
+                            <td>${carte.autor}</td>
+                            <td>${carte.editie}</td>
+                            <td>${carte.status}</td>
+                            <td><button class="btn-respinge" onclick="stergeCarte('${carte.isbn}')">Șterge</button></td>
+                        </tr>
+                    `;
+                });
+            });
+
+        // Incarca imprumuturile
+        function incarcaImprumuturi() {
+            fetch('/api/imprumuturi')
+                .then(r => r.json())
+                .then(imprumuturi => {
+                    const lista = document.getElementById('listaImprumuturi');
+                    lista.innerHTML = '';
+                    if (imprumuturi.length === 0) {
+                        lista.innerHTML = '<tr><td colspan="7">Nu există cereri.</td></tr>';
+                    }
+                    imprumuturi.forEach(i => {
+                        lista.innerHTML += `
+                            <tr>
+                                <td>${i.id}</td>
+                                <td>${i.isbnCarte}</td>
+                                <td>${i.idUtilizator}</td>
+                                <td>${i.dataImprumut}</td>
+                                <td>${i.dataReturnareEstimata}</td>
+                                <td><span class="badge ${i.status}">${i.status}</span></td>
+                                <td>
+                                    ${i.status === 'pending' ? `
+                                        <button class="btn-aproba" onclick="aprobaImprumut(${i.id})">Aprobă</button>
+                                        <button class="btn-respinge" onclick="respingeImprumut(${i.id})">Respinge</button>
+                                    ` : ''}
+                                    ${i.status === 'aprobat' ? `
+                                        <button class="btn-returnat" onclick="returneaza(${i.id})">Marchează Returnat</button>
+                                    ` : ''}
+                                </td>
+                            </tr>
+                        `;
+                    });
+                });
+        }
+
+        // Aproba imprumut
+        function aprobaImprumut(id) {
+            fetch('/api/imprumuturi/aproba/' + id, { method: 'POST' })
+                .then(() => { alert('Împrumut aprobat!'); incarcaImprumuturi(); });
+        }
+
+        // Respinge imprumut
+        function respingeImprumut(id) {
+            fetch('/api/imprumuturi/respinge/' + id, { method: 'POST' })
+                .then(() => { alert('Împrumut respins!'); incarcaImprumuturi(); });
+        }
+
+        // Marcheaza returnat
+        function returneaza(id) {
+            fetch('/api/imprumuturi/returneaza/' + id, { method: 'POST' })
+                .then(() => { alert('Carte marcată ca returnată!'); incarcaImprumuturi(); });
+        }
+
+        // Incarca utilizatorii neaprobati
+        fetch('/api/utilizatori')
+            .then(r => r.json())
+            .then(utilizatori => {
+                const lista = document.getElementById('listaUtilizatori');
+                const neaprobati = utilizatori.filter(u => !u.aprobat);
+                if (neaprobati.length === 0) {
+                    lista.innerHTML = '<tr><td colspan="5">Nu există utilizatori în așteptare.</td></tr>';
+                }
+                neaprobati.forEach(u => {
+                    lista.innerHTML += `
+                        <tr>
+                            <td>${u.id}</td>
+                            <td>${u.nume}</td>
+                            <td>${u.email}</td>
+                            <td>${u.rol}</td>
+                            <td><button class="btn-aproba" onclick="aproba(${u.id})">Aprobă</button></td>
+                        </tr>
+                    `;
+                });
+            });
+
+        // Aproba utilizator
+        function aproba(id) {
+            fetch('/api/aproba/' + id, { method: 'POST' })
+                .then(r => r.text())
+                .then(mesaj => { alert(mesaj); location.reload(); });
+        }
+
+        incarcaImprumuturi();
+        function stergeCarte(isbn) {
+    if (confirm('Sigur vrei să ștergi cartea?')) {
+        fetch('/api/carti/' + isbn, { method: 'DELETE' })
+            .then(() => { alert('Carte ștearsă!'); location.reload(); });
+    }
+}
+
+    </script>
+</body>
+</html>

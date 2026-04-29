@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login - Biblioteca</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #d8b7a3;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .card {
+        background-color: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        width: 350px;
+      }
+      h2 {
+        color: #3a200f;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #875832;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background-color: #3a200f;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #3a200f;
+      }
+      p {
+        text-align: center;
+        margin-top: 15px;
+      }
+      a {
+        color: #3a200f;
+      }
+      #mesaj {
+        text-align: center;
+        color: #3a200f;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+        <h2> Biblioteca</h2>
+        <input type="email" id="email" placeholder="Email" />
+        <input type="password" id="parola" placeholder="Parola" />
+        <button onclick="login()">Login</button>
+        <div id="mesaj"></div>
+        <p>Nu ai cont? <a href="/register">Înregistrează-te</a></p>
+    </div>
+
+ <script>
+    function login() {
+        const email = document.getElementById('email').value;
+        const parola = document.getElementById('parola').value;
+
+        fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, parola: parola })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.eroare) {
+                document.getElementById('mesaj').innerText = data.eroare;
+            } else {
+                // Salveaza ID-ul utilizatorului
+                localStorage.setItem('idUtilizator', data.id);
+                localStorage.setItem('rol', data.rol);
+
+                // Redirectioneaza dupa rol
+                if (data.rol === 'bibliotecar') {
+                    window.location.href = '/dashboard-bibliotecar';
+                } else if (data.rol === 'student') {
+                    window.location.href = '/dashboard-student';
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
