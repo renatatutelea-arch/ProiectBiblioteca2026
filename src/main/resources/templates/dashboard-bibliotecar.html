@@ -206,11 +206,14 @@
       <div class="section-title">📚 Gestiune Cărți</div>
 
       <!-- Formular adăugare -->
-      <div class="form-row">
-        <div class="form-field">
-          <label>ISBN</label>
-          <input id="newIsbn" placeholder="978-…">
-        </div>
+      <div class="form-field">
+  <label>ISBN</label>
+  <div style="display:flex; gap:6px;">
+    <input id="newIsbn" placeholder="978-…" style="flex:1;"
+           oninput="autoCautaIsbn()">
+    <button type="button" class="btn btn-primary" onclick="cautaIsbn()">🔍</button>
+  </div>
+</div>
         <div class="form-field">
           <label>Titlu</label>
           <input id="newTitlu" placeholder="Titlul cărții">
@@ -401,6 +404,31 @@
         .then(r => r.text())
         .then(() => incarcaUtilizatori());
     }
+
+    function cautaIsbn() {
+  const isbn = document.getElementById('newIsbn').value.trim();
+  if (!isbn) { alert('Introdu un ISBN.'); return; }
+
+  fetch('/api/carti/lookup/' + encodeURIComponent(isbn))
+    .then(r => {
+      if (!r.ok) throw new Error('not_found');
+      return r.json();
+    })
+    .then(c => {
+      document.getElementById('newIsbn').value   = c.isbn;
+      document.getElementById('newTitlu').value  = c.titlu;
+      document.getElementById('newAutor').value  = c.autor;
+      document.getElementById('newEditie').value = c.editie;
+    })
+    .catch(() => alert('Cartea nu a fost gasita pe Google Books. Completeaza manual.'));
+}
+
+// Cand bibliotecarul scaneaza cu cititorul USB, ISBN-ul are 13 cifre dintr-o data;
+// declansam automat cautarea.
+function autoCautaIsbn() {
+  const v = document.getElementById('newIsbn').value.replace(/[-\s]/g, '');
+  if (v.length === 13) cautaIsbn();
+}
 
     /* Init */
     incarcaCarti();

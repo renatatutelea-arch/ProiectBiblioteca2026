@@ -12,6 +12,8 @@ public class CarteController {
 
     @Autowired
     private CarteService carteService;
+    @Autowired
+    private com.biblioteca.biblioteca.service.IsbnLookupService isbnLookupService;
 
     @GetMapping("/")
     public String index() {
@@ -36,4 +38,13 @@ public class CarteController {
         carteService.deleteCarte(isbn);
         return "Carte ștearsă!";
     }
+    @GetMapping("/api/carti/lookup/{isbn}")
+@ResponseBody
+public org.springframework.http.ResponseEntity<carte> cautaDupaIsbn(@PathVariable String isbn) {
+    carte c = isbnLookupService.lookup(isbn);
+    if (c == null) {
+        return org.springframework.http.ResponseEntity.notFound().build();
+    }
+    return org.springframework.http.ResponseEntity.ok(c);
+}
 }

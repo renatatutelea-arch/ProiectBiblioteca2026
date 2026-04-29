@@ -8,32 +8,57 @@ public class carte {
 
     @Id
     @Column(name = "ISBN")
-    private String ISBN;
+    private String isbn;
 
     @Column(name = "Titlu")
-    private String Titlu;
+    private String titlu;
 
     @Column(name = "Autor")
-    private String Autor;
+    private String autor;
 
     @Column(name = "Editie")
-    private String Editie;
+    private String editie;
 
     @Column(name = "Status")
-    private String Status;
+    private String status;
 
-    public String getIsbn() { return ISBN; }
-    public void setIsbn(String ISBN) { this.ISBN = ISBN; }
+    public String getIsbn() {
+        return isbn;
+    }
 
-    public String getTitlu() { return Titlu; }
-    public void setTitlu(String Titlu) { this.Titlu = Titlu; }
+    public void setIsbn(String ISBN) {
+        this.isbn = ISBN;
+    }
 
-    public String getAutor() { return Autor; }
-    public void setAutor(String Autor) { this.Autor = Autor; }
+    public String getTitlu() {
+        return titlu;
+    }
 
-    public String getEditie() { return Editie; }
-    public void setEditie(String Editie) { this.Editie = Editie; }
+    public void setTitlu(String Titlu) {
+        this.titlu = Titlu;
+    }
 
-    public String getStatus() { return Status; }
-    public void setStatus(String Status) { this.Status = Status; }
+    public String getAutor() {
+        return autor;
+    }
+
+    public void setAutor(String Autor) {
+        this.autor = Autor;
+    }
+
+    public String getEditie() {
+        return editie;
+    }
+
+    public void setEditie(String Editie) {
+        this.editie = Editie;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String Status) {
+        this.status = Status;
+    }
 }
