@@ -1,103 +1,183 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ro">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Login - Biblioteca</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #d8b7a3;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-      }
-      .card {
-        background-color: white;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        width: 350px;
-      }
-      h2 {
-        color: #3a200f;
-        text-align: center;
-        margin-bottom: 30px;
-      }
-      input {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 15px;
-        border: 1px solid #875832;
-        border-radius: 8px;
-        box-sizing: border-box;
-      }
-      button {
-        width: 100%;
-        padding: 10px;
-        background-color: #3a200f;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-      }
-      button:hover {
-        background-color: #3a200f;
-      }
-      p {
-        text-align: center;
-        margin-top: 15px;
-      }
-      a {
-        color: #3a200f;
-      }
-      #mesaj {
-        text-align: center;
-        color: #3a200f;
-        margin-top: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-        <h2> Biblioteca</h2>
-        <input type="email" id="email" placeholder="Email" />
-        <input type="password" id="parola" placeholder="Parola" />
-        <button onclick="login()">Login</button>
-        <div id="mesaj"></div>
-        <p>Nu ai cont? <a href="/register">Înregistrează-te</a></p>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Biblioteca</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+
+    :root {
+      --brown-deep:   #1C0A00;
+      --brown-dark:   #3B1F0A;
+      --brown-mid:    #6B3A1F;
+      --brown-warm:   #9C6644;
+      --brown-light:  #C8A882;
+      --gold:         #C8860A;
+      --gold-light:   #E8B96A;
+      --gold-pale:    #F5E6C8;
+      --cream:        #FFF8EE;
+      --cream-warm:   #F5EBD8;
+      --glass:        rgba(255,248,238,0.90);
+      --shadow-lg:    0 12px 40px rgba(28,10,0,0.28);
+      --radius-sm:    8px;
+      --radius-lg:    20px;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'Lato', Arial, sans-serif;
+      --transition:   0.22s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+      background:
+        linear-gradient(160deg, rgba(28,10,0,0.65) 0%, rgba(59,31,10,0.55) 100%),
+        url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1920&q=80')
+        center / cover fixed;
+    }
+
+    .auth-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: var(--radius-lg);
+      padding: 48px 44px;
+      width: 100%; max-width: 400px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(200,168,130,0.30);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .auth-logo { text-align: center; margin-bottom: 32px; }
+    .auth-logo-icon { font-size: 2.4rem; display: block; margin-bottom: 8px; }
+    .auth-logo-title {
+      font-family: var(--font-display);
+      font-size: 2rem; font-weight: 700;
+      color: var(--brown-dark); letter-spacing: 0.02em;
+    }
+    .auth-logo-sub {
+      font-size: 11px; font-weight: 300;
+      color: var(--brown-warm); letter-spacing: 0.14em;
+      text-transform: uppercase; margin-top: 5px;
+    }
+    .auth-divider {
+      height: 1px; background: var(--gold-pale); margin: 22px 0;
+    }
+
+    .auth-input-group { margin-bottom: 14px; }
+    .auth-input-group label {
+      display: block;
+      font-size: 10.5px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--brown-warm); margin-bottom: 5px;
+    }
+    .auth-input-group input {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid var(--brown-light);
+      border-radius: var(--radius-sm);
+      background: var(--cream);
+      font-family: var(--font-body); font-size: 14.5px;
+      color: var(--brown-deep); outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .auth-input-group input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,134,10,0.13);
+    }
+
+    .auth-btn {
+      width: 100%; padding: 13px;
+      background: var(--brown-dark); color: var(--cream);
+      border: none; border-radius: var(--radius-sm);
+      font-family: var(--font-display); font-size: 16px;
+      font-weight: 600; letter-spacing: 0.05em;
+      cursor: pointer; margin-top: 6px;
+      transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+    .auth-btn:hover {
+      background: var(--brown-mid);
+      box-shadow: 0 4px 14px rgba(28,10,0,0.22);
+      transform: translateY(-1px);
+    }
+    .auth-btn:active { transform: translateY(0); }
+
+    #mesaj {
+      text-align: center; margin-top: 12px;
+      font-size: 13px; font-weight: 700;
+      color: #7A1C0A; min-height: 20px;
+    }
+    .auth-footer {
+      text-align: center; margin-top: 20px;
+      font-size: 13px; color: var(--brown-warm);
+    }
+    .auth-footer a {
+      color: var(--gold); font-weight: 700;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--transition);
+    }
+    .auth-footer a:hover { border-color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <span class="auth-logo-icon">📚</span>
+      <div class="auth-logo-title">Biblioteca</div>
+      <div class="auth-logo-sub">Sistem de Gestiune</div>
+    </div>
+    <div class="auth-divider"></div>
+
+    <div class="auth-input-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="adresa@email.com" />
+    </div>
+    <div class="auth-input-group">
+      <label for="parola">Parolă</label>
+      <input type="password" id="parola" placeholder="••••••••" />
     </div>
 
- <script>
+    <button class="auth-btn" onclick="login()">Intră în cont</button>
+    <div id="mesaj"></div>
+
+    <div class="auth-footer">
+      Nu ai cont? <a href="/register">Înregistrează-te</a>
+    </div>
+  </div>
+
+  <script>
     function login() {
-        const email = document.getElementById('email').value;
-        const parola = document.getElementById('parola').value;
+      const email  = document.getElementById('email').value;
+      const parola = document.getElementById('parola').value;
 
-        fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email, parola: parola })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.eroare) {
-                document.getElementById('mesaj').innerText = data.eroare;
-            } else {
-                // Salveaza ID-ul utilizatorului
-                localStorage.setItem('idUtilizator', data.id);
-                localStorage.setItem('rol', data.rol);
-
-                // Redirectioneaza dupa rol
-                if (data.rol === 'bibliotecar') {
-                    window.location.href = '/dashboard-bibliotecar';
-                } else if (data.rol === 'student') {
-                    window.location.href = '/dashboard-student';
-                }
-            }
-        });
+      fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, parola })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.eroare) {
+          document.getElementById('mesaj').innerText = data.eroare;
+        } else {
+          localStorage.setItem('idUtilizator', data.id);
+          localStorage.setItem('rol', data.rol);
+          if (data.rol === 'bibliotecar') window.location.href = '/dashboard-bibliotecar';
+          else if (data.rol === 'student')    window.location.href = '/dashboard-student';
+        }
+      });
     }
-</script>
+
+    /* Allow Enter key to submit */
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+  </script>
 </body>
 </html>

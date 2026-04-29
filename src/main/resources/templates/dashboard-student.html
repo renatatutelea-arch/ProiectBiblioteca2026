@@ -1,174 +1,268 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard Student</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f4ff;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            color: #1565c0;
-            text-align: center;
-        }
-        .sectiune {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        h2 { color: #1565c0; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th {
-            background-color: #1e88e5;
-            color: white;
-            padding: 10px;
-        }
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #bbdefb;
-            text-align: center;
-        }
-        tr:hover { background-color: #e3f2fd; }
-        button {
-            background-color: #1e88e5;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        button:hover { background-color: #1565c0; }
-        button:disabled {
-            background-color: #aaa;
-            cursor: not-allowed;
-        }
-        .logout {
-            float: right;
-            background-color: #888;
-        }
-        .badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            color: white;
-            font-size: 12px;
-        }
-        .pending { background-color: #fb8c00; }
-        .aprobat { background-color: #43a047; }
-        .respins { background-color: #e53935; }
-        .returnat { background-color: #888; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Student — Biblioteca</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+
+    :root {
+      --brown-deep:   #1C0A00;
+      --brown-dark:   #3B1F0A;
+      --brown-mid:    #6B3A1F;
+      --brown-warm:   #9C6644;
+      --brown-light:  #C8A882;
+      --gold:         #C8860A;
+      --gold-light:   #E8B96A;
+      --gold-pale:    #F5E6C8;
+      --cream:        #FFF8EE;
+      --cream-warm:   #F5EBD8;
+      --glass:        rgba(255,248,238,0.90);
+      --glass-dark:   rgba(40,16,2,0.82);
+      --shadow-sm:    0 2px 8px  rgba(28,10,0,0.14);
+      --shadow-lg:    0 12px 40px rgba(28,10,0,0.28);
+      --radius-sm:    8px;
+      --radius-md:    14px;
+      --radius-lg:    20px;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'Lato', Arial, sans-serif;
+      --transition:   0.22s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      min-height: 100vh;
+      background:
+        linear-gradient(160deg, rgba(28,10,0,0.65) 0%, rgba(59,31,10,0.55) 100%),
+        url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1920&q=80')
+        center / cover fixed;
+      color: var(--brown-deep);
+    }
+
+    /* TOPBAR */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px;
+      background: var(--glass-dark);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(200,134,10,0.30);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-brand {
+      font-family: var(--font-display);
+      font-size: 1.45rem; font-weight: 700;
+      color: var(--gold-light); letter-spacing: 0.03em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .role-badge {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.10em;
+      padding: 4px 12px; border-radius: 20px;
+      background: rgba(200,134,10,0.22); color: var(--gold-light);
+      border: 1px solid rgba(200,134,10,0.40);
+    }
+    .btn-logout {
+      font-family: var(--font-body); font-weight: 700;
+      font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 7px 18px; border-radius: var(--radius-sm);
+      background: rgba(255,248,238,0.10); color: var(--cream-warm);
+      border: 1px solid rgba(200,168,130,0.30); cursor: pointer;
+      transition: background var(--transition);
+    }
+    .btn-logout:hover { background: rgba(255,248,238,0.20); }
+
+    /* PAGE */
+    .page-wrap {
+      max-width: 1100px; margin: 0 auto; padding: 36px 24px 60px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 2rem; font-weight: 700;
+      color: var(--cream); margin-bottom: 28px;
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    /* SECTION CARD */
+    .section-card {
+      background: var(--glass);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-radius: var(--radius-lg); padding: 28px 32px;
+      margin-bottom: 28px; box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(200,168,130,0.28);
+      animation: fadeUp 0.4s ease both;
+    }
+    .section-card:nth-child(2) { animation-delay: 0.08s; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem; font-weight: 600;
+      color: var(--brown-dark); margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--gold-pale);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* TABLE */
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--brown-dark); }
+    th {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--gold-light); padding: 12px 14px; text-align: center;
+    }
+    td {
+      padding: 11px 14px; text-align: center;
+      border-bottom: 1px solid rgba(200,168,130,0.22);
+      color: var(--brown-mid); font-size: 14px;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(200,134,10,0.07); }
+    tbody tr:hover td { color: var(--brown-dark); }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: var(--font-body); font-weight: 700;
+      font-size: 12.5px; letter-spacing: 0.04em;
+      padding: 7px 16px; border-radius: var(--radius-sm);
+      border: none; cursor: pointer;
+      transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: var(--brown-dark); color: var(--cream); }
+    .btn-primary:hover { background: var(--brown-mid); }
+    .btn:disabled { background: #bbb; color: #fff; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* BADGES */
+    .badge {
+      display: inline-block; padding: 3px 11px; border-radius: 20px;
+      font-size: 11.5px; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .badge.pending   { background: rgba(200,134,10,0.15); color: #7A5200; border: 1px solid rgba(200,134,10,0.35); }
+    .badge.aprobat   { background: rgba(46,94,26,0.15);  color: #1F4A0A; border: 1px solid rgba(46,94,26,0.30); }
+    .badge.respins   { background: rgba(122,28,10,0.12); color: #7A1C0A; border: 1px solid rgba(122,28,10,0.28); }
+    .badge.returnat  { background: rgba(80,60,40,0.12);  color: #4A3020; border: 1px solid rgba(80,60,40,0.25); }
+  </style>
 </head>
 <body>
-    <h1> Dashboard Student <button class="logout" onclick="window.location.href='/login'">Logout</button></h1>
+  <nav class="topbar">
+    <div class="topbar-brand">📚 Biblioteca</div>
+    <div class="topbar-right">
+      <span class="role-badge">Student</span>
+      <button class="btn-logout" onclick="window.location.href='/login'">Logout</button>
+    </div>
+  </nav>
 
-    <!-- Carti disponibile -->
-    <div class="sectiune">
-        <h2> Cărți disponibile</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ISBN</th>
-                    <th>Titlu</th>
-                    <th>Autor</th>
-                    <th>Ediție</th>
-                    <th>Acțiune</th>
-                </tr>
-            </thead>
-            <tbody id="listaCarti"></tbody>
-        </table>
+  <div class="page-wrap">
+    <h1 class="page-title">📖 Dashboard Student</h1>
+
+    <!-- Cărți disponibile -->
+    <div class="section-card">
+      <div class="section-title">🗂 Cărți disponibile</div>
+      <table>
+        <thead>
+          <tr>
+            <th>ISBN</th><th>Titlu</th><th>Autor</th><th>Ediție</th><th>Acțiune</th>
+          </tr>
+        </thead>
+        <tbody id="listaCarti">
+          <tr><td colspan="5" style="color:#9C6644;font-style:italic;padding:20px;">Se încarcă…</td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- Imprumuturile mele -->
-    <div class="sectiune">
-        <h2> Împrumuturile mele</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ISBN Carte</th>
-                    <th>Data Împrumut</th>
-                    <th>Termen Returnare</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="listaImprumuturi"></tbody>
-        </table>
+    <!-- Împrumuturile mele -->
+    <div class="section-card">
+      <div class="section-title">📋 Împrumuturile mele</div>
+      <table>
+        <thead>
+          <tr>
+            <th>ISBN Carte</th><th>Data Împrumut</th><th>Termen Returnare</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="listaImprumuturi">
+          <tr><td colspan="4" style="color:#9C6644;font-style:italic;padding:20px;">Se încarcă…</td></tr>
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    <script>
-        // ID-ul utilizatorului logat (salvat la login)
-        const idUtilizator = localStorage.getItem('idUtilizator');
+  <script>
+    const idUtilizator = localStorage.getItem('idUtilizator');
 
-        // Incarca cartile
-        fetch('/api/carti')
-            .then(r => r.json())
-            .then(carti => {
-                const lista = document.getElementById('listaCarti');
-                carti.forEach(carte => {
-                    const disponibil = carte.status === 'disponibil';
-                    lista.innerHTML += `
-                        <tr>
-                            <td>${carte.isbn}</td>
-                            <td>${carte.titlu}</td>
-                            <td>${carte.autor}</td>
-                            <td>${carte.editie}</td>
-                            <td>
-                                <button onclick="cereImprumut('${carte.isbn}')" 
-                                    ${!disponibil ? 'disabled' : ''}>
-                                    ${disponibil ? 'Împrumută' : 'Indisponibil'}
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            });
-
-        // Incarca imprumuturile studentului
-        function incarcaImprumuturi() {
-            fetch('/api/imprumuturi')
-                .then(r => r.json())
-                .then(toate => {
-                    const ale_mele = toate.filter(i => i.idUtilizator == idUtilizator);
-                    const lista = document.getElementById('listaImprumuturi');
-                    lista.innerHTML = '';
-                    if (ale_mele.length === 0) {
-                        lista.innerHTML = '<tr><td colspan="4">Nu ai împrumuturi.</td></tr>';
-                    }
-                    ale_mele.forEach(i => {
-                        lista.innerHTML += `
-                            <tr>
-                                <td>${i.isbnCarte}</td>
-                                <td>${i.dataImprumut}</td>
-                                <td>${i.dataReturnareEstimata}</td>
-                                <td><span class="badge ${i.status}">${i.status}</span></td>
-                            </tr>
-                        `;
-                    });
-                });
+    /* Cărți */
+    fetch('/api/carti')
+      .then(r => r.json())
+      .then(carti => {
+        const lista = document.getElementById('listaCarti');
+        if (!carti.length) {
+          lista.innerHTML = '<tr><td colspan="5" style="color:#9C6644;font-style:italic;padding:20px;">Nu există cărți.</td></tr>';
+          return;
         }
+        lista.innerHTML = carti.map(c => {
+          const disponibil = c.status === 'disponibil';
+          return `
+            <tr>
+              <td>${c.isbn}</td>
+              <td><strong style="color:var(--brown-dark)">${c.titlu}</strong></td>
+              <td>${c.autor}</td>
+              <td>${c.editie}</td>
+              <td>
+                <button class="btn btn-primary" onclick="cereImprumut('${c.isbn}')"
+                  ${!disponibil ? 'disabled' : ''}>
+                  ${disponibil ? '📥 Împrumută' : 'Indisponibil'}
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      });
 
-        // Cere imprumut
-        function cereImprumut(isbn) {
-            fetch('/api/imprumuturi/cere', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ isbnCarte: isbn, idUtilizator: idUtilizator })
-            })
-            .then(r => r.json())
-            .then(() => {
-                alert('Cerere trimisă! Așteaptă aprobarea bibliotecarului.');
-                incarcaImprumuturi();
-            });
-        }
+    /* Împrumuturi */
+    function incarcaImprumuturi() {
+      fetch('/api/imprumuturi')
+        .then(r => r.json())
+        .then(toate => {
+          const ale_mele = toate.filter(i => i.idUtilizator == idUtilizator);
+          const lista = document.getElementById('listaImprumuturi');
+          if (!ale_mele.length) {
+            lista.innerHTML = '<tr><td colspan="4" style="color:#9C6644;font-style:italic;padding:20px;">Nu ai împrumuturi înregistrate.</td></tr>';
+            return;
+          }
+          lista.innerHTML = ale_mele.map(i => `
+            <tr>
+              <td>${i.isbnCarte}</td>
+              <td>${i.dataImprumut}</td>
+              <td>${i.dataReturnareEstimata}</td>
+              <td><span class="badge ${i.status}">${i.status}</span></td>
+            </tr>
+          `).join('');
+        });
+    }
 
+    function cereImprumut(isbn) {
+      fetch('/api/imprumuturi/cere', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isbnCarte: isbn, idUtilizator })
+      })
+      .then(r => r.json())
+      .then(() => {
+        alert('Cerere trimisă! Așteaptă aprobarea bibliotecarului.');
         incarcaImprumuturi();
-    </script>
+      });
+    }
+
+    incarcaImprumuturi();
+  </script>
 </body>
 </html>

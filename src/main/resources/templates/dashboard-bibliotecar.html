@@ -1,243 +1,411 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard Bibliotecar</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f0f3;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 { color: #c2185b; text-align: center; }
-        .sectiune {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        h2 { color: #c2185b; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background-color: #e91e63; color: white; padding: 10px; }
-        td { padding: 10px; border-bottom: 1px solid #f48fb1; text-align: center; }
-        tr:hover { background-color: #fce4ec; }
-        button {
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 2px;
-        }
-        .btn-aproba { background-color: #43a047; }
-        .btn-aproba:hover { background-color: #2e7d32; }
-        .btn-respinge { background-color: #e53935; }
-        .btn-respinge:hover { background-color: #b71c1c; }
-        .btn-returnat { background-color: #1e88e5; }
-        .btn-returnat:hover { background-color: #1565c0; }
-        .logout { float: right; background-color: #888; }
-        .badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            color: white;
-            font-size: 12px;
-        }
-        .pending { background-color: #fb8c00; }
-        .aprobat { background-color: #43a047; }
-        .respins { background-color: #e53935; }
-        .returnat { background-color: #888; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Bibliotecar — Biblioteca</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+
+    :root {
+      --brown-deep:   #1C0A00;
+      --brown-dark:   #3B1F0A;
+      --brown-mid:    #6B3A1F;
+      --brown-warm:   #9C6644;
+      --brown-light:  #C8A882;
+      --gold:         #C8860A;
+      --gold-light:   #E8B96A;
+      --gold-pale:    #F5E6C8;
+      --cream:        #FFF8EE;
+      --cream-warm:   #F5EBD8;
+      --glass:        rgba(255,248,238,0.90);
+      --glass-dark:   rgba(40,16,2,0.82);
+      --shadow-sm:    0 2px 8px  rgba(28,10,0,0.14);
+      --shadow-lg:    0 12px 40px rgba(28,10,0,0.28);
+      --radius-sm:    8px;
+      --radius-md:    14px;
+      --radius-lg:    20px;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'Lato', Arial, sans-serif;
+      --transition:   0.22s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      min-height: 100vh;
+      background:
+        linear-gradient(160deg, rgba(28,10,0,0.65) 0%, rgba(59,31,10,0.55) 100%),
+        url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1920&q=80')
+        center / cover fixed;
+      color: var(--brown-deep);
+    }
+
+    /* TOPBAR */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px;
+      background: var(--glass-dark);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(200,134,10,0.30);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-brand {
+      font-family: var(--font-display);
+      font-size: 1.45rem; font-weight: 700;
+      color: var(--gold-light); letter-spacing: 0.03em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .role-badge {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.10em; padding: 4px 12px; border-radius: 20px;
+      background: rgba(200,134,10,0.22); color: var(--gold-light);
+      border: 1px solid rgba(200,134,10,0.40);
+    }
+    .btn-logout {
+      font-family: var(--font-body); font-weight: 700;
+      font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 7px 18px; border-radius: var(--radius-sm);
+      background: rgba(255,248,238,0.10); color: var(--cream-warm);
+      border: 1px solid rgba(200,168,130,0.30); cursor: pointer;
+      transition: background var(--transition);
+    }
+    .btn-logout:hover { background: rgba(255,248,238,0.20); }
+
+    /* PAGE */
+    .page-wrap {
+      max-width: 1100px; margin: 0 auto; padding: 36px 24px 60px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 2rem; font-weight: 700;
+      color: var(--cream); margin-bottom: 28px;
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    /* SECTION CARD */
+    .section-card {
+      background: var(--glass);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-radius: var(--radius-lg); padding: 28px 32px;
+      margin-bottom: 28px; box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(200,168,130,0.28);
+      animation: fadeUp 0.4s ease both;
+    }
+    .section-card:nth-child(2) { animation-delay: 0.07s; }
+    .section-card:nth-child(3) { animation-delay: 0.14s; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem; font-weight: 600;
+      color: var(--brown-dark); margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--gold-pale);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* ADD BOOK FORM */
+    .form-row {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      align-items: flex-end; margin-bottom: 22px;
+      padding: 16px 18px;
+      background: var(--cream-warm);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gold-pale);
+    }
+    .form-field { display: flex; flex-direction: column; gap: 4px; }
+    .form-field label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.09em; color: var(--brown-warm);
+    }
+    .form-field input {
+      padding: 8px 12px;
+      border: 1.5px solid var(--brown-light);
+      border-radius: var(--radius-sm);
+      background: var(--cream);
+      font-family: var(--font-body); font-size: 14px;
+      color: var(--brown-deep); outline: none; min-width: 130px;
+      transition: border-color var(--transition);
+    }
+    .form-field input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,134,10,0.12);
+    }
+
+    /* TABLE */
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--brown-dark); }
+    th {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.09em; color: var(--gold-light);
+      padding: 12px 14px; text-align: center;
+    }
+    td {
+      padding: 11px 14px; text-align: center;
+      border-bottom: 1px solid rgba(200,168,130,0.22);
+      color: var(--brown-mid); font-size: 14px;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(200,134,10,0.07); }
+    tbody tr:hover td { color: var(--brown-dark); }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: var(--font-body); font-weight: 700;
+      font-size: 12px; letter-spacing: 0.04em;
+      padding: 6px 13px; border-radius: var(--radius-sm);
+      border: none; cursor: pointer;
+      transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+      margin: 2px;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: var(--brown-dark); color: var(--cream); }
+    .btn-primary:hover { background: var(--brown-mid); }
+    .btn-success  { background: #2E5E1A; color: #fff; }
+    .btn-success:hover  { background: #3a7820; }
+    .btn-danger   { background: #7A1C0A; color: #fff; }
+    .btn-danger:hover   { background: #9a2510; }
+    .btn-neutral  { background: #5C3A20; color: #fff; }
+    .btn-neutral:hover  { background: #7B5030; }
+    .btn-gold     { background: var(--gold); color: var(--brown-deep); }
+    .btn-gold:hover     { background: var(--gold-light); }
+
+    /* BADGES */
+    .badge {
+      display: inline-block; padding: 3px 11px; border-radius: 20px;
+      font-size: 11.5px; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .badge.pending  { background: rgba(200,134,10,0.15); color: #7A5200; border: 1px solid rgba(200,134,10,0.35); }
+    .badge.aprobat  { background: rgba(46,94,26,0.15);  color: #1F4A0A; border: 1px solid rgba(46,94,26,0.30); }
+    .badge.respins  { background: rgba(122,28,10,0.12); color: #7A1C0A; border: 1px solid rgba(122,28,10,0.28); }
+    .badge.returnat { background: rgba(80,60,40,0.12);  color: #4A3020; border: 1px solid rgba(80,60,40,0.25); }
+  </style>
 </head>
 <body>
-    <h1>Dashboard Bibliotecar <button class="logout" onclick="window.location.href='/login'">Logout</button></h1>
+  <nav class="topbar">
+    <div class="topbar-brand">📚 Biblioteca</div>
+    <div class="topbar-right">
+      <span class="role-badge">Bibliotecar</span>
+      <button class="btn-logout" onclick="window.location.href='/login'">Logout</button>
+    </div>
+  </nav>
 
-    <!-- Sectiunea carti -->
-    <div class="sectiune">
-        <h2> Cărți</h2>
-        <h2>➕ Adaugă carte nouă</h2>
-<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
-    <input id="newIsbn" placeholder="ISBN" style="padding:8px; border-radius:8px; border:1px solid #f48fb1;">
-    <input id="newTitlu" placeholder="Titlu" style="padding:8px; border-radius:8px; border:1px solid #f48fb1;">
-    <input id="newAutor" placeholder="Autor" style="padding:8px; border-radius:8px; border:1px solid #f48fb1;">
-    <input id="newEditie" placeholder="Ediție" style="padding:8px; border-radius:8px; border:1px solid #f48fb1;">
-    <button class="btn-aproba" onclick="adaugaCarte()">Adaugă</button>
-</div>
-        <table>
-            <thead>
-                <tr>
-                    <th>ISBN</th>
-                    <th>Titlu</th>
-                    <th>Autor</th>
-                    <th>Ediție</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="listaCarti"></tbody>
-        </table>
+  <div class="page-wrap">
+    <h1 class="page-title">🗂 Dashboard Bibliotecar</h1>
+
+    <!-- ══ CĂRȚI ══ -->
+    <div class="section-card">
+      <div class="section-title">📚 Gestiune Cărți</div>
+
+      <!-- Formular adăugare -->
+      <div class="form-row">
+        <div class="form-field">
+          <label>ISBN</label>
+          <input id="newIsbn" placeholder="978-…">
+        </div>
+        <div class="form-field">
+          <label>Titlu</label>
+          <input id="newTitlu" placeholder="Titlul cărții">
+        </div>
+        <div class="form-field">
+          <label>Autor</label>
+          <input id="newAutor" placeholder="Prenume Nume">
+        </div>
+        <div class="form-field">
+          <label>Ediție</label>
+          <input id="newEditie" placeholder="ex: a 3-a">
+        </div>
+        <div class="form-field" style="justify-content:flex-end">
+          <button class="btn btn-success" onclick="adaugaCarte()">➕ Adaugă carte</button>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ISBN</th><th>Titlu</th><th>Autor</th><th>Ediție</th><th>Status</th><th>Acțiuni</th>
+          </tr>
+        </thead>
+        <tbody id="listaCarti">
+          <tr><td colspan="6" style="color:#9C6644;font-style:italic;padding:20px;">Se încarcă…</td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- Sectiunea imprumuturi -->
-    <div class="sectiune">
-        <h2> Cereri împrumuturi</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>ISBN Carte</th>
-                    <th>ID Utilizator</th>
-                    <th>Data Împrumut</th>
-                    <th>Termen Returnare</th>
-                    <th>Status</th>
-                    <th>Acțiuni</th>
-                </tr>
-            </thead>
-            <tbody id="listaImprumuturi"></tbody>
-        </table>
+    <!-- ══ ÎMPRUMUTURI ══ -->
+    <div class="section-card">
+      <div class="section-title">📋 Cereri Împrumuturi</div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>ISBN Carte</th><th>ID Utilizator</th>
+            <th>Data Împrumut</th><th>Termen Returnare</th>
+            <th>Status</th><th>Acțiuni</th>
+          </tr>
+        </thead>
+        <tbody id="listaImprumuturi">
+          <tr><td colspan="7" style="color:#9C6644;font-style:italic;padding:20px;">Se încarcă…</td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- Sectiunea utilizatori neaprobati -->
-    <div class="sectiune">
-        <h2> Utilizatori care așteaptă aprobare</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nume</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Acțiune</th>
-                </tr>
-            </thead>
-            <tbody id="listaUtilizatori"></tbody>
-        </table>
+    <!-- ══ UTILIZATORI ══ -->
+    <div class="section-card">
+      <div class="section-title">👤 Utilizatori în Așteptare</div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Nume</th><th>Email</th><th>Rol</th><th>Acțiune</th>
+          </tr>
+        </thead>
+        <tbody id="listaUtilizatori">
+          <tr><td colspan="5" style="color:#9C6644;font-style:italic;padding:20px;">Se încarcă…</td></tr>
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    <script>
-        function adaugaCarte() {
-    const carte = {
-        isbn: document.getElementById('newIsbn').value,
-        titlu: document.getElementById('newTitlu').value,
-        autor: document.getElementById('newAutor').value,
-        editie: document.getElementById('newEditie').value,
+  <script>
+    /* ── CĂRȚI ── */
+    function incarcaCarti() {
+      fetch('/api/carti')
+        .then(r => r.json())
+        .then(carti => {
+          const lista = document.getElementById('listaCarti');
+          if (!carti.length) {
+            lista.innerHTML = '<tr><td colspan="6" style="color:#9C6644;font-style:italic;padding:20px;">Nu există cărți înregistrate.</td></tr>';
+            return;
+          }
+          lista.innerHTML = carti.map(c => `
+            <tr>
+              <td>${c.isbn}</td>
+              <td><strong style="color:var(--brown-dark)">${c.titlu}</strong></td>
+              <td>${c.autor}</td>
+              <td>${c.editie}</td>
+              <td>${c.status}</td>
+              <td>
+                <button class="btn btn-danger" onclick="stergeCarte('${c.isbn}')">🗑 Șterge</button>
+              </td>
+            </tr>
+          `).join('');
+        });
+    }
+
+    function adaugaCarte() {
+      const carte = {
+        isbn:   document.getElementById('newIsbn').value.trim(),
+        titlu:  document.getElementById('newTitlu').value.trim(),
+        autor:  document.getElementById('newAutor').value.trim(),
+        editie: document.getElementById('newEditie').value.trim(),
         status: 'disponibil'
-    };
-    fetch('/api/carti', {
+      };
+      if (!carte.isbn || !carte.titlu) { alert('ISBN și Titlu sunt obligatorii.'); return; }
+      fetch('/api/carti', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(carte)
-    })
-    .then(() => { alert('Carte adăugată!'); location.reload(); });
-}
-        // Incarca cartile
-        fetch('/api/carti')
-            .then(r => r.json())
-            .then(carti => {
-                const lista = document.getElementById('listaCarti');
-                carti.forEach(carte => {
-                    lista.innerHTML += `
-                        <tr>
-                            <td>${carte.isbn}</td>
-                            <td>${carte.titlu}</td>
-                            <td>${carte.autor}</td>
-                            <td>${carte.editie}</td>
-                            <td>${carte.status}</td>
-                            <td><button class="btn-respinge" onclick="stergeCarte('${carte.isbn}')">Șterge</button></td>
-                        </tr>
-                    `;
-                });
-            });
-
-        // Incarca imprumuturile
-        function incarcaImprumuturi() {
-            fetch('/api/imprumuturi')
-                .then(r => r.json())
-                .then(imprumuturi => {
-                    const lista = document.getElementById('listaImprumuturi');
-                    lista.innerHTML = '';
-                    if (imprumuturi.length === 0) {
-                        lista.innerHTML = '<tr><td colspan="7">Nu există cereri.</td></tr>';
-                    }
-                    imprumuturi.forEach(i => {
-                        lista.innerHTML += `
-                            <tr>
-                                <td>${i.id}</td>
-                                <td>${i.isbnCarte}</td>
-                                <td>${i.idUtilizator}</td>
-                                <td>${i.dataImprumut}</td>
-                                <td>${i.dataReturnareEstimata}</td>
-                                <td><span class="badge ${i.status}">${i.status}</span></td>
-                                <td>
-                                    ${i.status === 'pending' ? `
-                                        <button class="btn-aproba" onclick="aprobaImprumut(${i.id})">Aprobă</button>
-                                        <button class="btn-respinge" onclick="respingeImprumut(${i.id})">Respinge</button>
-                                    ` : ''}
-                                    ${i.status === 'aprobat' ? `
-                                        <button class="btn-returnat" onclick="returneaza(${i.id})">Marchează Returnat</button>
-                                    ` : ''}
-                                </td>
-                            </tr>
-                        `;
-                    });
-                });
-        }
-
-        // Aproba imprumut
-        function aprobaImprumut(id) {
-            fetch('/api/imprumuturi/aproba/' + id, { method: 'POST' })
-                .then(() => { alert('Împrumut aprobat!'); incarcaImprumuturi(); });
-        }
-
-        // Respinge imprumut
-        function respingeImprumut(id) {
-            fetch('/api/imprumuturi/respinge/' + id, { method: 'POST' })
-                .then(() => { alert('Împrumut respins!'); incarcaImprumuturi(); });
-        }
-
-        // Marcheaza returnat
-        function returneaza(id) {
-            fetch('/api/imprumuturi/returneaza/' + id, { method: 'POST' })
-                .then(() => { alert('Carte marcată ca returnată!'); incarcaImprumuturi(); });
-        }
-
-        // Incarca utilizatorii neaprobati
-        fetch('/api/utilizatori')
-            .then(r => r.json())
-            .then(utilizatori => {
-                const lista = document.getElementById('listaUtilizatori');
-                const neaprobati = utilizatori.filter(u => !u.aprobat);
-                if (neaprobati.length === 0) {
-                    lista.innerHTML = '<tr><td colspan="5">Nu există utilizatori în așteptare.</td></tr>';
-                }
-                neaprobati.forEach(u => {
-                    lista.innerHTML += `
-                        <tr>
-                            <td>${u.id}</td>
-                            <td>${u.nume}</td>
-                            <td>${u.email}</td>
-                            <td>${u.rol}</td>
-                            <td><button class="btn-aproba" onclick="aproba(${u.id})">Aprobă</button></td>
-                        </tr>
-                    `;
-                });
-            });
-
-        // Aproba utilizator
-        function aproba(id) {
-            fetch('/api/aproba/' + id, { method: 'POST' })
-                .then(r => r.text())
-                .then(mesaj => { alert(mesaj); location.reload(); });
-        }
-
-        incarcaImprumuturi();
-        function stergeCarte(isbn) {
-    if (confirm('Sigur vrei să ștergi cartea?')) {
-        fetch('/api/carti/' + isbn, { method: 'DELETE' })
-            .then(() => { alert('Carte ștearsă!'); location.reload(); });
+      })
+      .then(() => {
+        ['newIsbn','newTitlu','newAutor','newEditie'].forEach(id =>
+          document.getElementById(id).value = '');
+        incarcaCarti();
+      });
     }
-}
 
-    </script>
+    function stergeCarte(isbn) {
+      if (!confirm('Sigur vrei să ștergi această carte?')) return;
+      fetch('/api/carti/' + isbn, { method: 'DELETE' })
+        .then(() => incarcaCarti());
+    }
+
+    /* ── ÎMPRUMUTURI ── */
+    function incarcaImprumuturi() {
+      fetch('/api/imprumuturi')
+        .then(r => r.json())
+        .then(imprumuturi => {
+          const lista = document.getElementById('listaImprumuturi');
+          if (!imprumuturi.length) {
+            lista.innerHTML = '<tr><td colspan="7" style="color:#9C6644;font-style:italic;padding:20px;">Nu există cereri de împrumut.</td></tr>';
+            return;
+          }
+          lista.innerHTML = imprumuturi.map(i => `
+            <tr>
+              <td>${i.id}</td>
+              <td>${i.isbnCarte}</td>
+              <td>${i.idUtilizator}</td>
+              <td>${i.dataImprumut}</td>
+              <td>${i.dataReturnareEstimata}</td>
+              <td><span class="badge ${i.status}">${i.status}</span></td>
+              <td>
+                ${i.status === 'pending' ? `
+                  <button class="btn btn-success"  onclick="aprobaImprumut(${i.id})">✔ Aprobă</button>
+                  <button class="btn btn-danger"   onclick="respingeImprumut(${i.id})">✖ Respinge</button>
+                ` : ''}
+                ${i.status === 'aprobat' ? `
+                  <button class="btn btn-neutral" onclick="returneaza(${i.id})">↩ Returnat</button>
+                ` : ''}
+              </td>
+            </tr>
+          `).join('');
+        });
+    }
+
+    function aprobaImprumut(id) {
+      fetch('/api/imprumuturi/aproba/' + id, { method: 'POST' })
+        .then(() => incarcaImprumuturi());
+    }
+    function respingeImprumut(id) {
+      fetch('/api/imprumuturi/respinge/' + id, { method: 'POST' })
+        .then(() => incarcaImprumuturi());
+    }
+    function returneaza(id) {
+      fetch('/api/imprumuturi/returneaza/' + id, { method: 'POST' })
+        .then(() => incarcaImprumuturi());
+    }
+
+    /* ── UTILIZATORI ── */
+    function incarcaUtilizatori() {
+      fetch('/api/utilizatori')
+        .then(r => r.json())
+        .then(utilizatori => {
+          const lista = document.getElementById('listaUtilizatori');
+          const neaprobati = utilizatori.filter(u => !u.aprobat);
+          if (!neaprobati.length) {
+            lista.innerHTML = '<tr><td colspan="5" style="color:#9C6644;font-style:italic;padding:20px;">Nu există utilizatori în așteptare.</td></tr>';
+            return;
+          }
+          lista.innerHTML = neaprobati.map(u => `
+            <tr>
+              <td>${u.id}</td>
+              <td><strong style="color:var(--brown-dark)">${u.nume}</strong></td>
+              <td>${u.email}</td>
+              <td>${u.rol}</td>
+              <td>
+                <button class="btn btn-gold" onclick="aprobaUtilizator(${u.id})">✔ Aprobă</button>
+              </td>
+            </tr>
+          `).join('');
+        });
+    }
+
+    function aprobaUtilizator(id) {
+      fetch('/api/aproba/' + id, { method: 'POST' })
+        .then(r => r.text())
+        .then(() => incarcaUtilizatori());
+    }
+
+    /* Init */
+    incarcaCarti();
+    incarcaImprumuturi();
+    incarcaUtilizatori();
+  </script>
 </body>
 </html>

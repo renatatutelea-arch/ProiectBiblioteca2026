@@ -1,68 +1,173 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ro">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Biblioteca</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 40px;
-        background-color: #f0f0f0;
-      }
-      h1 {
-        color: #333;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: white;
-      }
-      th {
-        background-color: #4caf50;
-        color: white;
-        padding: 10px;
-      }
-      td {
-        padding: 10px;
-        border-bottom: 1px solid #ddd;
-        text-align: center;
-      }
-      tr :hover {
-        background-color: #f5f5f5;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Biblioteca</h1>
-    <table id="tabelCarti">
-      <thead>
-        <tr>
-          <th>ISBN</th>
-          <th>Titlu</th>
-          <th>Autor</th>
-          <th>Editie</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="listaCarti"></tbody>
-    </table>
-    <script>
-      fetch("/api/carti")
-        .then((response) => response.json()) //Când primește răspunsul, îl transformă din text în date pe care JavaScript le înțelege (JSON = o listă de obiecte)
-        .then((carti) => {
-          const lista = document.getElementById("listaCarti");
-          carti.forEach((carte) => {
-            lista.innerHTML += `
-                        <tr>
-                            <td>${carte.isbn}</td>
-                            <td>${carte.titlu}</td>
-                            <td>${carte.autor}</td>
-                            <td>${carte.editie}</td>
-                            <td>${carte.status}</td>
-                        </tr>
-                    `;
-          });
-        });
-    </script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catalog — Biblioteca</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+
+    :root {
+      --brown-deep:   #1C0A00;
+      --brown-dark:   #3B1F0A;
+      --brown-mid:    #6B3A1F;
+      --brown-warm:   #9C6644;
+      --brown-light:  #C8A882;
+      --gold:         #C8860A;
+      --gold-light:   #E8B96A;
+      --gold-pale:    #F5E6C8;
+      --cream:        #FFF8EE;
+      --cream-warm:   #F5EBD8;
+      --glass:        rgba(255,248,238,0.90);
+      --glass-dark:   rgba(40,16,2,0.82);
+      --shadow-sm:    0 2px 8px  rgba(28,10,0,0.14);
+      --shadow-md:    0 6px 24px rgba(28,10,0,0.20);
+      --shadow-lg:    0 12px 40px rgba(28,10,0,0.28);
+      --radius-sm:    8px;
+      --radius-md:    14px;
+      --radius-lg:    20px;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'Lato', Arial, sans-serif;
+      --transition:   0.22s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      min-height: 100vh;
+      background:
+        linear-gradient(160deg, rgba(28,10,0,0.65) 0%, rgba(59,31,10,0.55) 100%),
+        url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1920&q=80')
+        center / cover fixed;
+      color: var(--brown-deep);
+    }
+
+    /* TOPBAR */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px;
+      background: var(--glass-dark);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(200,134,10,0.30);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-brand {
+      font-family: var(--font-display);
+      font-size: 1.45rem; font-weight: 700;
+      color: var(--gold-light); letter-spacing: 0.03em;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* PAGE */
+    .page-wrap {
+      max-width: 1100px; margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 2rem; font-weight: 700;
+      color: var(--cream); margin-bottom: 28px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .page-title small {
+      font-size: 1rem; font-weight: 300; font-style: italic;
+      color: var(--gold-light);
+    }
+
+    /* SECTION CARD */
+    .section-card {
+      background: var(--glass);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(200,168,130,0.28);
+      animation: fadeUp 0.4s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* TABLE */
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--brown-dark); }
+    th {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--gold-light); padding: 13px 14px; text-align: center;
+    }
+    td {
+      padding: 12px 14px; text-align: center;
+      border-bottom: 1px solid rgba(200,168,130,0.22);
+      color: var(--brown-mid); font-size: 14px;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(200,134,10,0.07); }
+    tbody tr:hover td { color: var(--brown-dark); }
+
+    /* BADGE */
+    .badge {
+      display: inline-block; padding: 3px 11px;
+      border-radius: 20px; font-size: 11.5px;
+      font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .badge-disponibil  { background: rgba(46,94,26,0.13);  color: #1F4A0A; border: 1px solid rgba(46,94,26,0.28); }
+    .badge-indisponibil{ background: rgba(122,28,10,0.10); color: #7A1C0A; border: 1px solid rgba(122,28,10,0.22); }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <div class="topbar-brand">📚 Biblioteca</div>
+  </nav>
+
+  <div class="page-wrap">
+    <h1 class="page-title">
+      Catalog de Cărți <small>— toate titlurile disponibile</small>
+    </h1>
+
+    <div class="section-card">
+      <table id="tabelCarti">
+        <thead>
+          <tr>
+            <th>ISBN</th>
+            <th>Titlu</th>
+            <th>Autor</th>
+            <th>Ediție</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="listaCarti">
+          <tr><td colspan="5" style="text-align:center;color:#9C6644;font-style:italic;padding:24px;">Se încarcă cărțile…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    fetch('/api/carti')
+      .then(r => r.json())
+      .then(carti => {
+        const lista = document.getElementById('listaCarti');
+        if (!carti.length) {
+          lista.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9C6644;font-style:italic;padding:24px;">Nu există cărți în catalog.</td></tr>';
+          return;
+        }
+        lista.innerHTML = carti.map(c => `
+          <tr>
+            <td>${c.isbn}</td>
+            <td><strong style="color:var(--brown-dark)">${c.titlu}</strong></td>
+            <td>${c.autor}</td>
+            <td>${c.editie}</td>
+            <td>
+              <span class="badge badge-${c.status === 'disponibil' ? 'disponibil' : 'indisponibil'}">
+                ${c.status}
+              </span>
+            </td>
+          </tr>
+        `).join('');
+      });
+  </script>
+</body>
 </html>
